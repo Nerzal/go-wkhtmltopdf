@@ -239,6 +239,21 @@ func (pdfg *PDFGenerator) WriteFile(filename string) error {
 //a running program once it has been found
 func (pdfg *PDFGenerator) findPath() error {
 	const exe = "wkhtmltopdf"
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+	
+
+	path, err := exec.LookPath(filepath.Join(exPath, exe))
+	if err == nil && path != "" {
+		binPath.Set(path)
+		pdfg.binPath = path
+		fmt.Println("Found executable in path: ", exPath)
+		return nil
+	}
+
 	pdfg.binPath = GetPath()
 	if pdfg.binPath != "" {
 		// wkhtmltopdf has already already found, return
@@ -248,7 +263,7 @@ func (pdfg *PDFGenerator) findPath() error {
 	if err != nil {
 		return err
 	}
-	path, err := exec.LookPath(filepath.Join(exeDir, exe))
+	path, err = exec.LookPath(filepath.Join(exeDir, exe))
 	if err == nil && path != "" {
 		binPath.Set(path)
 		pdfg.binPath = path
